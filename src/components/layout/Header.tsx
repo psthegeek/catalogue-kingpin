@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart, LogOut, Package, MapPin } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { categories } from '@/data/products';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -15,6 +17,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -22,6 +25,11 @@ export function Header() {
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   return (
@@ -71,23 +79,62 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 hidden sm:flex items-center gap-2">
                     <User size={20} />
-                    <span className="hidden lg:inline">Account</span>
+                    <span className="hidden lg:inline max-w-24 truncate">
+                      {user ? user.email?.split('@')[0] : 'Account'}
+                    </span>
                     <ChevronDown size={16} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 shadow-dropdown">
-                  <DropdownMenuItem>
-                    <Link to="/login" className="w-full">Login / Sign Up</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/orders" className="w-full">My Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/wishlist" className="w-full">Wishlist</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/account" className="w-full">My Account</Link>
-                  </DropdownMenuItem>
+                  {user ? (
+                    <>
+                      <div className="px-2 py-1.5 text-sm">
+                        <p className="font-medium">{user.email}</p>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/account" className="w-full flex items-center gap-2">
+                          <User size={16} />
+                          My Account
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders" className="w-full flex items-center gap-2">
+                          <Package size={16} />
+                          My Orders
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/wishlist" className="w-full flex items-center gap-2">
+                          <Heart size={16} />
+                          Wishlist
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/addresses" className="w-full flex items-center gap-2">
+                          <MapPin size={16} />
+                          Addresses
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                        <LogOut size={16} className="mr-2" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/auth" className="w-full">Login / Sign Up</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders" className="w-full">My Orders</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/wishlist" className="w-full">Wishlist</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -160,6 +207,12 @@ export function Header() {
         <div className="lg:hidden bg-card border-b border-border animate-slide-up">
           <div className="container mx-auto px-4 py-4">
             <ul className="space-y-2">
+              {user && (
+                <li className="border-b border-border pb-2 mb-2">
+                  <p className="text-sm text-muted-foreground">Signed in as</p>
+                  <p className="font-medium text-foreground">{user.email}</p>
+                </li>
+              )}
               {categories.map((category) => (
                 <li key={category.id}>
                   <Link
@@ -180,6 +233,19 @@ export function Header() {
                   Flash Deals 🔥
                 </Link>
               </li>
+              {user && (
+                <li className="border-t border-border pt-2 mt-2">
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block py-2 text-destructive"
+                  >
+                    Sign Out
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>
