@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, Share2, ShoppingCart, Zap, Truck, Shield, RefreshCw, ChevronRight, Minus, Plus, Check } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -14,6 +14,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   if (!product) {
     return (
@@ -205,7 +206,7 @@ export default function ProductDetail() {
                   <ShoppingCart size={20} />
                   Add to Cart
                 </Button>
-                <Button className="flex-1 btn-buy h-12">
+                <Button className="flex-1 btn-buy h-12" onClick={() => { addToCart(product, quantity); navigate('/checkout'); }}>
                   <Zap size={20} />
                   Buy Now
                 </Button>
