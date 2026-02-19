@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { MapPin, CreditCard, Truck, ChevronRight, Check, ArrowLeft } from 'lucide-react';
+import { MapPin, CreditCard, Truck, ChevronRight, Check, ArrowLeft, Smartphone, Landmark, Wallet } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/context/AuthContext';
@@ -88,7 +88,7 @@ export default function Checkout() {
         title: "Order placed successfully!",
         description: "Thank you for your order. You can track it in My Orders.",
       });
-      navigate('/orders');
+      navigate(`/order-confirmation?total=${finalTotal}&method=${paymentMethod}`);
     } catch (error) {
       console.error('Error placing order:', error);
       toast({
@@ -275,30 +275,122 @@ export default function Checkout() {
 
                 <form onSubmit={handlePaymentSubmit}>
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                    <label className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
                       <RadioGroupItem value="cod" id="cod" />
+                      <Truck size={20} className="text-muted-foreground shrink-0" />
                       <div className="flex-1">
                         <p className="font-medium text-foreground">Cash on Delivery</p>
                         <p className="text-sm text-muted-foreground">Pay when you receive your order</p>
                       </div>
                     </label>
 
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                    <label className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
                       <RadioGroupItem value="card" id="card" />
+                      <CreditCard size={20} className="text-muted-foreground shrink-0" />
                       <div className="flex-1">
                         <p className="font-medium text-foreground">Credit / Debit Card</p>
                         <p className="text-sm text-muted-foreground">Visa, Mastercard, RuPay</p>
                       </div>
                     </label>
 
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                    <label className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'upi' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
                       <RadioGroupItem value="upi" id="upi" />
+                      <Smartphone size={20} className="text-muted-foreground shrink-0" />
                       <div className="flex-1">
                         <p className="font-medium text-foreground">UPI</p>
                         <p className="text-sm text-muted-foreground">Google Pay, PhonePe, Paytm</p>
                       </div>
                     </label>
+
+                    <label className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'netbanking' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="netbanking" id="netbanking" />
+                      <Landmark size={20} className="text-muted-foreground shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">Net Banking</p>
+                        <p className="text-sm text-muted-foreground">All major banks supported</p>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'wallet' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="wallet" id="wallet" />
+                      <Wallet size={20} className="text-muted-foreground shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">Wallet</p>
+                        <p className="text-sm text-muted-foreground">Paytm, Amazon Pay, Mobikwik</p>
+                      </div>
+                    </label>
                   </RadioGroup>
+
+                  {/* Mock Card Input */}
+                  {paymentMethod === 'card' && (
+                    <div className="mt-6 p-4 border border-border rounded-lg space-y-4 bg-secondary/30">
+                      <div className="space-y-2">
+                        <Label htmlFor="cardNumber">Card Number</Label>
+                        <Input id="cardNumber" placeholder="1234  5678  9012  3456" maxLength={19} className="font-mono" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="expiry">Expiry Date</Label>
+                          <Input id="expiry" placeholder="MM / YY" maxLength={7} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cvv">CVV</Label>
+                          <Input id="cvv" type="password" placeholder="•••" maxLength={4} />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cardName">Name on Card</Label>
+                        <Input id="cardName" placeholder="John Doe" />
+                      </div>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Check size={12} className="text-success" /> Your card details are secure and encrypted
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Mock UPI Input */}
+                  {paymentMethod === 'upi' && (
+                    <div className="mt-6 p-4 border border-border rounded-lg space-y-4 bg-secondary/30">
+                      <div className="space-y-2">
+                        <Label htmlFor="upiId">UPI ID</Label>
+                        <Input id="upiId" placeholder="yourname@upi" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Or pay using UPI apps</p>
+                      <div className="flex gap-3">
+                        {['Google Pay', 'PhonePe', 'Paytm', 'BHIM'].map(app => (
+                          <button key={app} type="button" className="flex-1 p-3 border border-border rounded-lg text-xs font-medium text-foreground hover:border-primary hover:bg-primary/5 transition-colors text-center">
+                            {app}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mock Net Banking */}
+                  {paymentMethod === 'netbanking' && (
+                    <div className="mt-6 p-4 border border-border rounded-lg space-y-4 bg-secondary/30">
+                      <p className="text-sm font-medium text-foreground">Popular Banks</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['SBI', 'HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Kotak Bank', 'PNB'].map(bank => (
+                          <button key={bank} type="button" className="p-3 border border-border rounded-lg text-sm text-foreground hover:border-primary hover:bg-primary/5 transition-colors text-left">
+                            {bank}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mock Wallet */}
+                  {paymentMethod === 'wallet' && (
+                    <div className="mt-6 p-4 border border-border rounded-lg space-y-3 bg-secondary/30">
+                      {['Paytm Wallet', 'Amazon Pay', 'Mobikwik', 'Freecharge'].map(w => (
+                        <button key={w} type="button" className="w-full flex items-center justify-between p-3 border border-border rounded-lg text-sm text-foreground hover:border-primary hover:bg-primary/5 transition-colors">
+                          <span>{w}</span>
+                          <span className="text-xs text-muted-foreground">Link & Pay</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="flex gap-4 mt-6">
                     <Button type="button" variant="outline" onClick={() => setStep('address')} className="flex-1">
@@ -351,6 +443,8 @@ export default function Checkout() {
                     {paymentMethod === 'cod' && 'Cash on Delivery'}
                     {paymentMethod === 'card' && 'Credit / Debit Card'}
                     {paymentMethod === 'upi' && 'UPI'}
+                    {paymentMethod === 'netbanking' && 'Net Banking'}
+                    {paymentMethod === 'wallet' && 'Wallet'}
                   </p>
                 </div>
 

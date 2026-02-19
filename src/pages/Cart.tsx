@@ -191,10 +191,12 @@ export default function Cart() {
               )}
 
               {/* Checkout Button */}
-              <Button className="w-full btn-buy mt-6 h-12">
-                Proceed to Checkout
-                <ArrowRight size={18} />
-              </Button>
+              <Link to="/checkout">
+                <Button className="w-full btn-buy mt-6 h-12">
+                  Proceed to Checkout
+                  <ArrowRight size={18} />
+                </Button>
+              </Link>
 
               {/* Continue Shopping */}
               <Link to="/products" className="block text-center mt-4">
