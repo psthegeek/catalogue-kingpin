@@ -268,10 +268,22 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const noopAnalytics: AnalyticsContextType = {
+  trackEvent: () => {},
+  trackPageView: () => {},
+  trackProductView: () => {},
+  trackProductClick: () => {},
+  trackAddToCart: () => {},
+  trackRemoveFromCart: () => {},
+  trackSearch: () => {},
+  trackCategoryBrowse: () => {},
+  trackPurchase: () => {},
+  trackCheckoutStep: () => {},
+  trackWishlistAction: () => {},
+  getUserIdentity: () => ({ user_id: null, email: null, auth_status: 'anonymous' }),
+};
+
 export function useAnalytics() {
   const context = useContext(AnalyticsContext);
-  if (!context) {
-    throw new Error('useAnalytics must be used within an AnalyticsProvider');
-  }
-  return context;
+  return context ?? noopAnalytics;
 }
