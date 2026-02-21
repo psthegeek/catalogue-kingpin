@@ -99,29 +99,110 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          demographic_attributes: Json | null
           email: string | null
           full_name: string | null
           id: string
+          loyalty_score: number | null
           phone: string | null
+          preferences: Json | null
+          subscription_tier: string | null
           updated_at: string | null
+          user_segment: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          demographic_attributes?: Json | null
           email?: string | null
           full_name?: string | null
           id: string
+          loyalty_score?: number | null
           phone?: string | null
+          preferences?: Json | null
+          subscription_tier?: string | null
           updated_at?: string | null
+          user_segment?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          demographic_attributes?: Json | null
           email?: string | null
           full_name?: string | null
           id?: string
+          loyalty_score?: number | null
           phone?: string | null
+          preferences?: Json | null
+          subscription_tier?: string | null
           updated_at?: string | null
+          user_segment?: string | null
+        }
+        Relationships: []
+      }
+      user_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          page_url: string | null
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_segments: {
+        Row: {
+          created_at: string
+          id: string
+          segment_name: string
+          segment_value: string
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          segment_name: string
+          segment_value: string
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          segment_name?: string
+          segment_value?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { MapPin, CreditCard, Truck, ChevronRight, Check, ArrowLeft, Smartphone, Landmark, Wallet } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
@@ -17,9 +18,14 @@ type Step = 'address' | 'payment' | 'review';
 export default function Checkout() {
   const { user } = useAuth();
   const { items, totalPrice, totalSavings, clearCart } = useCart();
+  const { trackCheckoutStep, trackPurchase } = useAnalytics();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('address');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    trackCheckoutStep(step);
+  }, [step, trackCheckoutStep]);
 
   const [address, setAddress] = useState({
     name: '',
@@ -83,6 +89,7 @@ export default function Checkout() {
 
       if (error) throw error;
 
+      trackPurchase('order', finalTotal, orderItems, paymentMethod);
       clearCart();
       toast({
         title: "Order placed successfully!",

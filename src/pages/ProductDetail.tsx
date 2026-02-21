@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Heart, Share2, ShoppingCart, Zap, Truck, Shield, RefreshCw, ChevronRight, Minus, Plus, Check } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -14,7 +15,14 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { trackProductView, trackAddToCart } = useAnalytics();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (product) {
+      trackProductView(product);
+    }
+  }, [product, trackProductView]);
 
   if (!product) {
     return (
@@ -41,6 +49,7 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
+    trackAddToCart(product, quantity);
   };
 
   const relatedProducts = products

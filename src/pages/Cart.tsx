@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag, Truck } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -8,6 +10,11 @@ import { Input } from '@/components/ui/input';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalItems, totalPrice, totalSavings } = useCart();
+  const { trackPageView, trackRemoveFromCart } = useAnalytics();
+
+  useEffect(() => {
+    trackPageView('Cart', { item_count: totalItems, total: totalPrice });
+  }, [trackPageView, totalItems, totalPrice]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -114,7 +121,7 @@ export default function Cart() {
                       </div>
 
                       <button
-                        onClick={() => removeFromCart(product.id)}
+                        onClick={() => { removeFromCart(product.id); trackRemoveFromCart(product.id); }}
                         className="text-destructive hover:text-destructive/80 transition-colors flex items-center gap-1"
                       >
                         <Trash2 size={18} />

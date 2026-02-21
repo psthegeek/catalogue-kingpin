@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { Filter, SlidersHorizontal, Grid, List, ChevronDown } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -34,6 +35,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 export default function Products() {
   const [searchParams] = useSearchParams();
+  const { trackPageView, trackSearch, trackCategoryBrowse } = useAnalytics();
   const [sortBy, setSortBy] = useState<SortOption>('relevance');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
@@ -46,6 +48,12 @@ export default function Products() {
 
   const searchQuery = searchParams.get('search')?.toLowerCase() || '';
   const isDealPage = searchParams.get('deal') === 'true';
+  const categoryParam = searchParams.get('category');
+
+  useEffect(() => {
+    trackPageView('Products', { search: searchQuery, deal: isDealPage, category: categoryParam });
+    if (categoryParam) trackCategoryBrowse(categoryParam);
+  }, [searchQuery, isDealPage, categoryParam, trackPageView, trackCategoryBrowse]);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
@@ -107,6 +115,11 @@ export default function Products() {
 
     return filtered;
   }, [searchQuery, isDealPage, selectedCategories, priceRange, selectedRatings, selectedBrands, sortBy]);
+
+  // Track search after results are computed
+  useEffect(() => {
+    if (searchQuery) trackSearch(searchQuery, filteredProducts.length);
+  }, [searchQuery, filteredProducts.length, trackSearch]);
 
   const clearFilters = () => {
     setSelectedCategories([]);

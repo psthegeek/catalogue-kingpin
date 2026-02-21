@@ -4,8 +4,14 @@ import { CheckCircle2, Package, Truck, MapPin, CreditCard, ArrowRight, Copy, Che
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
+import { useAnalytics } from '@/context/AnalyticsContext';
 
 export default function OrderConfirmation() {
+  const { trackPageView } = useAnalytics();
+
+  useEffect(() => {
+    trackPageView('Order Confirmation');
+  }, [trackPageView]);
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('id') || 'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
   const total = searchParams.get('total') || '0';
