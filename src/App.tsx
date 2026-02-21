@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { AnalyticsProvider } from "@/context/AnalyticsContext";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -23,6 +24,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <AnalyticsProvider>
         <CartProvider>
           <Toaster />
           <Sonner />
@@ -43,6 +45,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </CartProvider>
+        </AnalyticsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

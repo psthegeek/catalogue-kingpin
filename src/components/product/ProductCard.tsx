@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, compact = false, showBadge = false }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { trackProductClick, trackAddToCart } = useAnalytics();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -24,7 +26,7 @@ export function ProductCard({ product, compact = false, showBadge = false }: Pro
 
   return (
     <div className="product-card group relative">
-      <Link to={`/product/${product.id}`}>
+      <Link to={`/product/${product.id}`} onClick={() => trackProductClick(product, 'product_list')}>
         {/* Image */}
         <div className={cn(
           "relative overflow-hidden bg-secondary",
@@ -117,6 +119,7 @@ export function ProductCard({ product, compact = false, showBadge = false }: Pro
             onClick={(e) => {
               e.preventDefault();
               addToCart(product);
+              trackAddToCart(product, 1);
             }}
           >
             <ShoppingCart size={18} />
