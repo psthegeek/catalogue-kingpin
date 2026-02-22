@@ -1,6 +1,18 @@
 import { createContext, useContext, useEffect, useRef, ReactNode, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  pushPageView,
+  pushProductView,
+  pushProductClick,
+  pushAddToCart,
+  pushRemoveFromCart,
+  pushPurchase,
+  pushSearch,
+  pushCategoryBrowse,
+  pushCheckoutStep,
+  pushWishlistAction,
+} from '@/lib/adobeDataLayer';
 
 interface AnalyticsEvent {
   event_type: string;
@@ -143,6 +155,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [user, enqueueEvent]);
 
   const trackPageView = useCallback((pageName: string, pageData?: Record<string, any>) => {
+    pushPageView(pageName, window.location.pathname, pageData);
     trackEvent({
       event_type: 'page_view',
       event_data: { page_name: pageName, ...pageData },
@@ -150,6 +163,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackProductView = useCallback((product: Record<string, any>) => {
+    pushProductView(product);
     trackEvent({
       event_type: 'product_view',
       event_data: {
@@ -166,6 +180,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackProductClick = useCallback((product: Record<string, any>, listName?: string) => {
+    pushProductClick(product, listName);
     trackEvent({
       event_type: 'product_click',
       event_data: {
@@ -180,6 +195,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackAddToCart = useCallback((product: Record<string, any>, quantity: number) => {
+    pushAddToCart(product, quantity);
     trackEvent({
       event_type: 'add_to_cart',
       event_data: {
@@ -194,6 +210,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackRemoveFromCart = useCallback((productId: string) => {
+    pushRemoveFromCart(productId);
     trackEvent({
       event_type: 'remove_from_cart',
       event_data: { product_id: productId },
@@ -201,6 +218,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackSearch = useCallback((searchTerm: string, resultCount: number) => {
+    pushSearch(searchTerm, resultCount);
     trackEvent({
       event_type: 'search',
       event_data: { search_term: searchTerm, result_count: resultCount },
@@ -208,6 +226,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackCategoryBrowse = useCallback((category: string, subcategory?: string) => {
+    pushCategoryBrowse(category, subcategory);
     trackEvent({
       event_type: 'category_browse',
       event_data: { category, subcategory },
@@ -215,17 +234,19 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackPurchase = useCallback((orderId: string, total: number, items: any[], paymentMethod: string) => {
+    const mappedItems = items.map(i => ({
+      product_id: i.product_id || i.product?.id,
+      name: i.name || i.product?.name,
+      price: i.price || i.product?.price,
+      quantity: i.quantity,
+    }));
+    pushPurchase(orderId, total, mappedItems, paymentMethod);
     trackEvent({
       event_type: 'purchase',
       event_data: {
         order_id: orderId,
         total_amount: total,
-        items: items.map(i => ({
-          product_id: i.product_id || i.product?.id,
-          name: i.name || i.product?.name,
-          price: i.price || i.product?.price,
-          quantity: i.quantity,
-        })),
+        items: mappedItems,
         payment_method: paymentMethod,
         item_count: items.length,
       },
@@ -233,6 +254,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackCheckoutStep = useCallback((step: string, data?: Record<string, any>) => {
+    pushCheckoutStep(step, data);
     trackEvent({
       event_type: 'checkout_step',
       event_data: { step, ...data },
@@ -240,6 +262,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   }, [trackEvent]);
 
   const trackWishlistAction = useCallback((action: 'add' | 'remove', productId: string) => {
+    pushWishlistAction(action, productId);
     trackEvent({
       event_type: `wishlist_${action}`,
       event_data: { product_id: productId },
