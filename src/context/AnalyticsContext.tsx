@@ -12,6 +12,7 @@ import {
   pushCategoryBrowse,
   pushCheckoutStep,
   pushWishlistAction,
+  pushUserProfile,
 } from '@/lib/adobeDataLayer';
 
 interface AnalyticsEvent {
@@ -76,7 +77,19 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
-        if (data) profileData.current = data;
+        if (data) {
+          profileData.current = data;
+          // Push user profile to ACDL for Adobe Target personalization
+          pushUserProfile({
+            userId: user.id,
+            email: user.email,
+            userSegment: data.user_segment ?? undefined,
+            subscriptionTier: data.subscription_tier ?? undefined,
+            loyaltyScore: data.loyalty_score ?? undefined,
+            preferences: data.preferences as Record<string, unknown> | undefined,
+            demographicAttributes: data.demographic_attributes as Record<string, unknown> | undefined,
+          });
+        }
       });
   }, [user]);
 
